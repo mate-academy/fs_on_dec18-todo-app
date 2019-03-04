@@ -19,14 +19,11 @@ const ToDo = ({ id, done, text, onChange, onDelete }) => (
 
 class ToDoList extends React.Component {
   state = {
-    items: [
-      { text: 'qweqweqwe', done: false, id: 1 },
-      { text: 'asfdsdf', done: true, id: 2 },
-      { text: 'zxczbcvb', done: false, id: 3 },
-    ],
+    items: [],
+    newItemText: ''
   };
 
-  onChange = (item) => {
+  handleChange = (item) => {
     this.setState(({ items }) => {
       const index = items.indexOf(item);
       const newItems = [...items];
@@ -41,7 +38,7 @@ class ToDoList extends React.Component {
     })
   };
 
-  onDelete = (item) => {
+  handleDelete = (item) => {
     this.setState(({items}) => {
       return {
         items: items.filter(current => current !== item),
@@ -49,13 +46,50 @@ class ToDoList extends React.Component {
     })
   };
 
+  addItem = (text) => {
+    this.setState(({items}) => {
+      const newItem = {
+        id: `${+new Date()}`,
+        done: false,
+        text,
+      };
+
+      return {
+        items: [...items, newItem],
+        newItemText: '',
+      };
+    });
+  };
+
+  handleFormSubmit = (event) => {
+    event.preventDefault();
+
+    this.addItem(this.state.newItemText);
+  };
+
+  handleNewItemTextChange = (event) => {
+    this.setState({
+      newItemText: event.target.value,
+    });
+  };
+
+
   render() {
     return (
       <section className="todoapp">
         <header className="header">
           <h1>todos</h1>
-          <input className="new-todo" placeholder="What needs to be done?" autoFocus="" />
+          <form onSubmit={this.handleFormSubmit}>
+            <input
+              className="new-todo"
+              placeholder="What needs to be done?"
+              autoFocus=""
+              value={this.state.newItemText}
+              onChange={this.handleNewItemTextChange}
+            />
+          </form>
         </header>
+
         <section className="main">
           <input id="toggle-all" className="toggle-all" type="checkbox" />
             <label htmlFor="toggle-all">Mark all as complete</label>
@@ -66,8 +100,8 @@ class ToDoList extends React.Component {
                   id={item.id}
                   text={item.text}
                   done={item.done}
-                  onChange={() => this.onChange(item)}
-                  onDelete={() => this.onDelete(item)}
+                  onChange={() => this.handleChange(item)}
+                  onDelete={() => this.handleDelete(item)}
                 />
               ))}
             </ul>
