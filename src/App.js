@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 
-const ToDo = ({ id, done, text, onChange }) => (
+const ToDo = ({ id, done, text, onChange, onDelete }) => (
   <li className={ done ? 'completed' : ''}>
     <div className="view">
       <input
@@ -12,7 +12,7 @@ const ToDo = ({ id, done, text, onChange }) => (
         onChange={onChange}
       />
       <label htmlFor={`todo-${id}`}>{text}</label>
-      <button className="destroy" />
+      <button className="destroy" onClick={onDelete} />
     </div>
   </li>
 );
@@ -41,6 +41,14 @@ class ToDoList extends React.Component {
     })
   };
 
+  onDelete = (item) => {
+    this.setState(({items}) => {
+      return {
+        items: items.filter(current => current !== item),
+      };
+    })
+  };
+
   render() {
     return (
       <section className="todoapp">
@@ -59,6 +67,7 @@ class ToDoList extends React.Component {
                   text={item.text}
                   done={item.done}
                   onChange={() => this.onChange(item)}
+                  onDelete={() => this.onDelete(item)}
                 />
               ))}
             </ul>
