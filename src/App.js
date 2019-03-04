@@ -11,7 +11,7 @@ const ToDo = ({ id, done, text, onChange }) => (
         checked={done}
         onChange={onChange}
       />
-      <label for={`todo-${id}`}>{text}</label>
+      <label htmlFor={`todo-${id}`}>{text}</label>
       <button className="destroy" />
     </div>
   </li>
