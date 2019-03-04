@@ -1,17 +1,17 @@
 import React from 'react';
 import './App.css';
 
-const ToDo = ({ done, text, onChange }) => (
+const ToDo = ({ id, done, text, onChange }) => (
   <li className={ done ? 'completed' : ''}>
     <div className="view">
       <input
+        id={`todo-${id}`}
         className="toggle"
         type="checkbox"
         checked={done}
         onChange={onChange}
       />
-
-      <label>{text}</label>
+      <label for={`todo-${id}`}>{text}</label>
       <button className="destroy" />
     </div>
   </li>
@@ -26,8 +26,19 @@ class ToDoList extends React.Component {
     ],
   };
 
-  onChange = () => {
+  onChange = (item) => {
+    this.setState(({ items }) => {
+      const index = items.indexOf(item);
+      const newItems = [...items];
+      newItems[index] = {
+        ...item,
+        done: !item.done,
+      };
 
+      return {
+        items: newItems,
+      };
+    })
   };
 
   render() {
@@ -44,9 +55,10 @@ class ToDoList extends React.Component {
               { this.state.items.map(item => (
                 <ToDo
                   key={item.id}
+                  id={item.id}
                   text={item.text}
                   done={item.done}
-                  onChange={this.onChange}
+                  onChange={() => this.onChange(item)}
                 />
               ))}
             </ul>
