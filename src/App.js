@@ -73,8 +73,18 @@ class ToDoList extends React.Component {
     });
   };
 
+  clearCompleted = () => {
+    this.setState(({ items }) => {
+      return {
+        items: items.filter(item => !item.done),
+      };
+    });
+  };
+
 
   render() {
+    const activeItems = this.state.items.filter(item => !item.done);
+
     return (
       <section className="todoapp">
         <header className="header">
@@ -109,7 +119,7 @@ class ToDoList extends React.Component {
 
         <footer className="footer">
 
-          <span className="todo-count"><strong>1</strong> item left</span>
+          <span className="todo-count"><strong>{activeItems.length}</strong> item left</span>
           <ul className="filters">
             <li>
               <a href="#/" className="selected">All</a>
@@ -121,7 +131,12 @@ class ToDoList extends React.Component {
               <a href="#/completed">Completed</a>
             </li>
           </ul>
-          <button className="clear-completed">Clear completed</button>
+          <button
+            onClick={this.clearCompleted}
+            className="clear-completed"
+          >
+            Clear completed
+          </button>
         </footer>
       </section>
     );
