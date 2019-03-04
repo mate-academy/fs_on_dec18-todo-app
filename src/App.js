@@ -1,21 +1,74 @@
 import React from 'react';
 import './App.css';
 
-const ToDo = ({ id, done, text, onChange, onDelete }) => (
-  <li className={ done ? 'completed' : ''}>
-    <div className="view">
-      <input
-        id={`todo-${id}`}
-        className="toggle"
-        type="checkbox"
-        checked={done}
-        onChange={onChange}
-      />
-      <label htmlFor={`todo-${id}`}>{text}</label>
-      <button className="destroy" onClick={onDelete} />
-    </div>
-  </li>
-);
+class ToDo extends React.Component {
+  state = {
+    isEditing: false,
+    currentValue: '',
+  };
+
+  startEditing = () => {
+    this.setState({
+      isEditing: true,
+      currentValue: this.props.text,
+    });
+  };
+
+  handleTextChange = (event) => {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    this.props.onTextChanged(this.state.currentValue);
+
+    this.setState({
+      currentValue: '',
+      isEditing: false,
+    });
+  };
+
+  render() {
+    const { id, done, text, onChange, onDelete } = this.props;
+    const classes = [];
+    if (done) {
+      classes.push('completed');
+    }
+
+    if (this.state.isEditing) {
+      classes.push('editing')
+    }
+
+    return (
+      <li
+        onDoubleClick={this.startEditing}
+        className={classes.join(' ')}
+      >
+        <div className="view">
+          <input
+            id={`todo-${id}`}
+            className="toggle"
+            type="checkbox"
+            checked={done}
+            onChange={onChange}
+          />
+          <label htmlFor={`todo-${id}`}>{text}</label>
+          <button className="destroy" onClick={onDelete} />
+        </div>
+
+        { this.state.isEditing && (
+          <input
+            onKeyPress={this.handleTextChange}
+            value={this.state.currentValue}
+            onChange={(event) => this.setState({ currentValue: event.target.value })}
+            type="text"
+            className="edit"
+          />
+        ) }
+
+      </li>
+    );
+  }
+}
 
 class ToDoList extends React.Component {
   state = {
@@ -23,13 +76,29 @@ class ToDoList extends React.Component {
     newItemText: ''
   };
 
-  handleChange = (item) => {
+  toggleItem = (item) => {
+    this.setState(({ items }) => {
+      const index = items.indexOf(item);
+      const newItems = [...items];
+
+      newItems[index] = {
+        ...item,
+        done: !item.done,
+      };
+
+      return {
+        items: newItems,
+      };
+    })
+  };
+
+  changeText = (item, text) => {
     this.setState(({ items }) => {
       const index = items.indexOf(item);
       const newItems = [...items];
       newItems[index] = {
         ...item,
-        done: !item.done,
+        text,
       };
 
       return {
@@ -61,7 +130,7 @@ class ToDoList extends React.Component {
     });
   };
 
-  handleFormSubmit = (event) => {
+  handleItemAdd = (event) => {
     event.preventDefault();
 
     this.addItem(this.state.newItemText);
@@ -89,7 +158,7 @@ class ToDoList extends React.Component {
       <section className="todoapp">
         <header className="header">
           <h1>todos</h1>
-          <form onSubmit={this.handleFormSubmit}>
+          <form onSubmit={this.handleItemAdd}>
             <input
               className="new-todo"
               placeholder="What needs to be done?"
@@ -110,8 +179,9 @@ class ToDoList extends React.Component {
                   id={item.id}
                   text={item.text}
                   done={item.done}
-                  onChange={() => this.handleChange(item)}
+                  onChange={() => this.toggleItem(item)}
                   onDelete={() => this.handleDelete(item)}
+                  onTextChanged={(text) => this.changeText(item, text)}
                 />
               ))}
             </ul>
